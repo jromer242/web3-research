@@ -135,13 +135,13 @@ class DefiLlamaAnalyzer:
         return [
             {
                 "name": p["name"],
+                "slug": p.get("slug", p["name"].lower().replace(" ", "-")),
                 "symbol": p.get("symbol"),
                 "tvl": p.get("tvl"),
                 "change_1d": p.get("change_1d"),
                 "change_7d": p.get("change_7d"),
                 "chains": p.get("chains", []),
                 "category": p.get("category"),
-                "url": p.get("url"),
             }
             for p in sorted_data[:top_n]
         ]

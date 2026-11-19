@@ -172,14 +172,18 @@ elif page == "Protocol Deep Dive":
     st.title("Protocol Deep Dive")
 
     protocols = fetch_protocols(50)
-    protocol_names = {p["name"]: p.get("url", p["name"]).split("/")[-1] if p.get("url") else p["name"].lower().replace(" ", "-") for p in protocols}
+    protocol_slugs = {p["name"]: p["slug"] for p in protocols}
 
-    selected = st.selectbox("Select Protocol", list(protocol_names.keys()))
+    selected = st.selectbox("Select Protocol", list(protocol_slugs.keys()))
 
     if selected:
-        slug = protocol_names[selected]
-        with st.spinner(f"Loading {selected}..."):
-            detail = fetch_protocol_detail(slug)
+        slug = protocol_slugs[selected]
+        try:
+            with st.spinner(f"Loading {selected}..."):
+                detail = fetch_protocol_detail(slug)
+        except Exception as e:
+            st.error(f"Could not load protocol: {e}")
+            st.stop()
 
         col1, col2, col3 = st.columns(3)
         col1.metric("Total TVL", f"${detail.get('tvl', 0) / 1e9:.2f}B")
