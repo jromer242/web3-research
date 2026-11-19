@@ -7,8 +7,11 @@ exchange flow analysis, and market structure research.
 API access requires DUNE_API_KEY (Analyst plan, $65/mo, 4000 credits).
 Without a key, use get_sql() to export queries for Dune's web editor.
 """
+import logging
 import os
 from typing import Any, Optional
+
+log = logging.getLogger(__name__)
 
 
 QUERIES: dict[str, dict[str, Any]] = {
@@ -320,6 +323,7 @@ class DuneAnalyzer:
             available = ", ".join(QUERIES.keys())
             raise ValueError(f"Unknown query: {query_name}. Available: {available}")
 
+        log.info("Running query %s with params %s", query_name, params)
         merged = self._resolve_params(query_name, params)
 
         # If a query_id was passed, run the saved query with parameters
@@ -365,6 +369,7 @@ class DuneAnalyzer:
 
     def run_saved(self, query_id: int, **params) -> list[dict]:
         """Execute a saved Dune query by its numeric ID."""
+        log.info("Executing saved query %d with %d params", query_id, len(params))
         from dune_client.query import QueryBase
         from dune_client.types import QueryParameter
 
@@ -384,7 +389,9 @@ class DuneAnalyzer:
 
     def get_latest(self, query_id: int) -> list[dict]:
         """Get cached results for a saved query (no execution credits used)."""
+        log.info("Fetching cached results for query %d", query_id)
         result = self.client.get_latest_result(query_id)
+        log.debug("Got %d rows from cache", len(result.result.rows))
         return result.result.rows
 
     # ── Convenience methods ──────────────────────────────────────────────

@@ -7,11 +7,14 @@ completely free with no API key required.
 
 Docs: https://defillama.com/docs/api
 """
+import logging
 import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
 import httpx
+
+log = logging.getLogger(__name__)
 
 
 BASE = "https://api.llama.fi"
@@ -50,7 +53,9 @@ class DefiLlamaClient:
         )
 
     def _get(self, url: str, params: dict | None = None) -> Any:
+        log.debug("GET %s params=%s", url, params)
         resp = self._client.get(url, params=params)
+        log.debug("  -> %s (%d bytes)", resp.status_code, len(resp.content))
         resp.raise_for_status()
         return resp.json()
 
