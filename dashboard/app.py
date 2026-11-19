@@ -22,17 +22,6 @@ st.set_page_config(
 )
 
 
-def fmt_usd(val):
-    if val is None or pd.isna(val):
-        return "N/A"
-    if abs(val) >= 1e9:
-        return f"${val / 1e9:.2f}B"
-    if abs(val) >= 1e6:
-        return f"${val / 1e6:.2f}M"
-    if abs(val) >= 1e3:
-        return f"${val / 1e3:.1f}K"
-    return f"${val:,.0f}"
-
 CHAIN_COLORS = {
     "Ethereum": "#627EEA",
     "Base": "#0052FF",
@@ -265,16 +254,14 @@ elif page == "DEX Volumes":
         fig.update_layout(yaxis=dict(autorange="reversed"), height=500)
         st.plotly_chart(fig, use_container_width=True)
 
-        df_display = df[["name", "volume_24h", "volume_7d", "change_1d"]].copy()
-        df_display["volume_24h"] = df_display["volume_24h"].apply(fmt_usd)
-        df_display["volume_7d"] = df_display["volume_7d"].apply(fmt_usd)
-        df_display["change_1d"] = df_display["change_1d"].apply(
-            lambda x: f"{x:+.1f}%" if pd.notna(x) else "N/A"
-        )
         st.dataframe(
-            df_display.rename(
-                columns={"name": "DEX", "volume_24h": "24h Volume", "volume_7d": "7d Volume", "change_1d": "24h Change %"}
-            ),
+            df[["name", "volume_24h", "volume_7d", "change_1d"]],
+            column_config={
+                "name": "DEX",
+                "volume_24h": st.column_config.NumberColumn("24h Volume", format="$%,.0f"),
+                "volume_7d": st.column_config.NumberColumn("7d Volume", format="$%,.0f"),
+                "change_1d": st.column_config.NumberColumn("24h Change %", format="%.1f%%"),
+            },
             use_container_width=True,
             hide_index=True,
         )
@@ -302,16 +289,14 @@ elif page == "DEX Volumes":
             fig.update_layout(yaxis=dict(autorange="reversed"))
             st.plotly_chart(fig, use_container_width=True)
 
-            df_display = df[["name", "volume_24h", "volume_7d", "change_1d"]].copy()
-            df_display["volume_24h"] = df_display["volume_24h"].apply(fmt_usd)
-            df_display["volume_7d"] = df_display["volume_7d"].apply(fmt_usd)
-            df_display["change_1d"] = df_display["change_1d"].apply(
-                lambda x: f"{x:+.1f}%" if pd.notna(x) else "N/A"
-            )
             st.dataframe(
-                df_display.rename(
-                    columns={"name": "DEX", "volume_24h": "24h Volume", "volume_7d": "7d Volume", "change_1d": "24h Change %"}
-                ),
+                df[["name", "volume_24h", "volume_7d", "change_1d"]],
+                column_config={
+                    "name": "DEX",
+                    "volume_24h": st.column_config.NumberColumn("24h Volume", format="$%,.0f"),
+                    "volume_7d": st.column_config.NumberColumn("7d Volume", format="$%,.0f"),
+                    "change_1d": st.column_config.NumberColumn("24h Change %", format="%.1f%%"),
+                },
                 use_container_width=True,
                 hide_index=True,
             )
@@ -364,23 +349,17 @@ elif page == "Yield Explorer":
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
 
-        df_display = df[["symbol", "chain", "project", "apy", "apy_base", "apy_reward", "tvl"]].copy()
-        df_display["tvl"] = df_display["tvl"].apply(fmt_usd)
-        df_display["apy"] = df_display["apy"].apply(lambda x: f"{x:.2f}%" if pd.notna(x) else "N/A")
-        df_display["apy_base"] = df_display["apy_base"].apply(lambda x: f"{x:.2f}%" if pd.notna(x) else "N/A")
-        df_display["apy_reward"] = df_display["apy_reward"].apply(lambda x: f"{x:.2f}%" if pd.notna(x) else "N/A")
         st.dataframe(
-            df_display.rename(
-                columns={
-                    "symbol": "Pool",
-                    "chain": "Chain",
-                    "project": "Protocol",
-                    "apy": "APY %",
-                    "apy_base": "Base APY %",
-                    "apy_reward": "Reward APY %",
-                    "tvl": "TVL",
-                }
-            ),
+            df[["symbol", "chain", "project", "apy", "apy_base", "apy_reward", "tvl"]],
+            column_config={
+                "symbol": "Pool",
+                "chain": "Chain",
+                "project": "Protocol",
+                "apy": st.column_config.NumberColumn("APY %", format="%.2f%%"),
+                "apy_base": st.column_config.NumberColumn("Base APY %", format="%.2f%%"),
+                "apy_reward": st.column_config.NumberColumn("Reward APY %", format="%.2f%%"),
+                "tvl": st.column_config.NumberColumn("TVL", format="$%,.0f"),
+            },
             use_container_width=True,
             hide_index=True,
         )
